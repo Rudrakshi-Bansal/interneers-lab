@@ -13,7 +13,6 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 -   [Running Tests](#running-tests)
 -   [Learn More](#learn-more)
 
-
 ## Getting Started
 
 Welcome to the Engineers Lab 2025 frontend! This project provides a foundation for building web applications using React, TypeScript, and other related technologies. This README will guide you through the setup process and provide instructions on how to run the development server, explore various features, and execute tests.

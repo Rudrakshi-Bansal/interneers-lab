@@ -14,7 +14,7 @@ $app-link-color: #007bff; // Standard blue
 // App Styles
 .App {
   text-align: center;
-  background-color: $primary-color; // Light gray background
+  background-color: $app-background-color; // Light gray background
   padding: 2rem;
 }
 
@@ -43,7 +43,8 @@ $app-link-color: #007bff; // Standard blue
   color: $app-link-color;
   text-decoration: none;
 
-  &:hover { // Hover effect
+  &:hover {
+    // Hover effect
     text-decoration: underline;
     color: darken($app-link-color, 20%); // Darker blue on hover
   }
