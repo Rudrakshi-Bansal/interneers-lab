@@ -1,1 +1,10 @@
+# macOS
 .DS_Store
+
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Database
+db.sqlite3

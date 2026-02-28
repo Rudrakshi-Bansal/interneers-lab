@@ -1,23 +1,96 @@
 # Interneers Lab
 
-Welcome to the **Interneers Lab** repository! This serves as a minimal starter kit for learning and experimenting with:
-- **Django** (Python)
-- **Golang** (Go)
-- **React**  (with TypeScript)
-- **MongoDB** (via Docker Compose)
-- Development environment in **VSCode** (recommended)
+Welcome to the Interneers Lab repository. This project serves as a foundational codebase for building a small end-to-end **Inventory Management System** over the duration of the program.
 
-**Important:** Use the **same email** you shared during onboarding when configuring Git and related tools. That ensures consistency across all internal systems.
+The repository includes:
 
-### Project structure
+- Django (Python)
+- Golang (Go)
+- React (TypeScript)
+- MongoDB (via Docker Compose)
+
+Use the same email shared during onboarding when configuring Git.
+
+---
+
+## Current Backend Implementation (Week 1)
+
+The Python backend has been structured using **Hexagonal Architecture (Ports and Adapters pattern)**.
+
+At this stage, the system exposes a simple HTTP GET endpoint:
+
+GET /api/greet/?name=<username>
+
+### Example
+
+http://127.0.0.1:8000/api/greet/?name=Rudrakshi
+
+### Response
+
+```json
+{
+  "message": "Hello Rudrakshi"
+}
+```
+
+If no name is provided:
+
+GET /api/greet/
+
+A default greeting response is returned.
+
+---
+
+## Architecture Overview
+
+The Python backend follows this layered structure:
+
+backend/python/  
+├── django_app/        # Django project configuration  
+└── core/  
+&nbsp;&nbsp;&nbsp;&nbsp;├── domain/         # Business logic  
+&nbsp;&nbsp;&nbsp;&nbsp;├── application/    # Use cases  
+&nbsp;&nbsp;&nbsp;&nbsp;└── adapters/api/   # HTTP interface  
+
+### Layer Responsibilities
+
+- **Domain**: Contains pure business logic without framework dependencies.
+- **Application**: Coordinates use cases and business rules.
+- **Adapters**: Handles HTTP requests and connects them to the application layer.
+
+This separation ensures that business logic remains independent from the web framework and can be extended in future iterations.
+
+---
+
+## Running the Python Backend
+
+From the repository root:
 
 ```
-backend/
-  go/          # Golang backend (see backend/go/README.md)
-  python/      # Django (Python) backend (see backend/python/README.md)
-frontend/      # React + TypeScript (see frontend/README.md)
+cd backend/python
+python -m venv venv
+venv\Scripts\activate   # Windows
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
 ```
 
+The server runs at:
+
+http://127.0.0.1:8000
+
+---
+
+## Project Structure
+
+backend/  
+&nbsp;&nbsp;go/          # Golang backend  
+&nbsp;&nbsp;python/      # Django backend  
+frontend/      # React (TypeScript)  
+
+---
+
+This project will be progressively expanded in upcoming weeks to build a functional Inventory Management System.
 ---
 
 ## Table of Contents
