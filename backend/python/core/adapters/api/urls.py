@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import greet_user_view
+from core.adapters.api.views import products, product_detail
 
 urlpatterns = [
-    path("greet/", greet_user_view),
+    path("products/", products),
+    path("products/<str:product_id>/", product_detail),
 ]
