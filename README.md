@@ -8,21 +8,21 @@ This repository serves as the working codebase for incremental weekly assignment
 
 ## Tech Stack
 
-- Backend (Python) – Django
-- Backend (Go) – Golang
-- Frontend – React + TypeScript
+- Backend (Python) – Django  
+- Backend (Go) – Golang  
+- Frontend – React + TypeScript  
 - Database – MongoDB (Docker)
 
 ---
 
 ## Repository Structure
 
+```
 backend/
   go/          # Golang backend
   python/      # Django backend
 frontend/      # React + TypeScript frontend
-
-Each stack contains its own setup instructions where applicable.
+```
 
 ---
 
@@ -30,46 +30,62 @@ Each stack contains its own setup instructions where applicable.
 
 ### Clone the Repository
 
-git clone git@github.com:<YourUsername>/interneers-lab.git  
-cd interneers-lab  
+```bash
+git clone git@github.com:<YourUsername>/interneers-lab.git
+cd interneers-lab
+```
 
 Ensure Git is configured with the same email used during onboarding:
 
-git config --global user.name "Your Name"  
-git config --global user.email "your.email@example.com"  
+```bash
+git config --global user.name "Your Name"
+git config --global user.email "your.email@example.com"
+```
 
 ---
 
-## Running the Python Backend
+### Running the Python Backend
 
-From the backend/python directory:
+From the `backend/python` directory:
 
-python -m venv venv  
-.\venv\Scripts\activate        # Windows  
-# source venv/bin/activate     # macOS/Linux  
+```bash
+python -m venv venv
 
-pip install -r requirements.txt  
-python manage.py migrate  
-python manage.py runserver  
+# Windows
+.\venv\Scripts\activate
+
+# macOS/Linux
+source venv/bin/activate
+
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+```
 
 Server runs at:
 
+```
 http://127.0.0.1:8000
+```
 
 ---
 
-## MongoDB Setup (Week 3)
+### MongoDB Setup (Week 3)
 
 MongoDB runs via Docker.
 
-From backend/python:
+From `backend/python`:
 
-docker compose up -d  
+```bash
+docker compose up -d
+```
 
 Connection is configured using environment variables:
 
-MONGO_URI  
-MONGO_DB  
+```
+MONGO_URI
+MONGO_DB
+```
 
 ---
 
@@ -77,13 +93,15 @@ MONGO_DB
 
 The Python backend follows a layered, hexagonal structure:
 
+```
 core/
     domain/            # Business models
     application/       # Use cases and validations
     adapters/
         api/           # HTTP interface (Django views)
+```
 
-Flow:
+**Flow:**
 
 Controller → Service → Repository → MongoEngine → MongoDB
 
