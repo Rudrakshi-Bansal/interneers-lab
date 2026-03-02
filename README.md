@@ -11,17 +11,16 @@ This repository serves as the working codebase for incremental weekly assignment
 - Backend (Python) – Django
 - Backend (Go) – Golang
 - Frontend – React + TypeScript
+- Database – MongoDB (Docker)
 
 ---
 
 ## Repository Structure
 
-```
 backend/
   go/          # Golang backend
   python/      # Django backend
 frontend/      # React + TypeScript frontend
-```
 
 Each stack contains its own setup instructions where applicable.
 
@@ -31,38 +30,46 @@ Each stack contains its own setup instructions where applicable.
 
 ### Clone the Repository
 
-```bash
-git clone git@github.com:<YourUsername>/interneers-lab.git
-cd interneers-lab
-```
+git clone git@github.com:<YourUsername>/interneers-lab.git  
+cd interneers-lab  
 
 Ensure Git is configured with the same email used during onboarding:
 
-```bash
-git config --global user.name "Your Name"
-git config --global user.email "your.email@example.com"
-```
+git config --global user.name "Your Name"  
+git config --global user.email "your.email@example.com"  
 
 ---
 
 ## Running the Python Backend
 
-From the `backend/python` directory:
+From the backend/python directory:
 
-```bash
-python -m venv venv
-.\venv\Scripts\activate        # Windows
-# source venv/bin/activate     # macOS/Linux
+python -m venv venv  
+.\venv\Scripts\activate        # Windows  
+# source venv/bin/activate     # macOS/Linux  
 
-pip install -r requirements.txt
-python manage.py runserver
-```
+pip install -r requirements.txt  
+python manage.py migrate  
+python manage.py runserver  
 
 Server runs at:
 
-```
 http://127.0.0.1:8000
-```
+
+---
+
+## MongoDB Setup (Week 3)
+
+MongoDB runs via Docker.
+
+From backend/python:
+
+docker compose up -d  
+
+Connection is configured using environment variables:
+
+MONGO_URI  
+MONGO_DB  
 
 ---
 
@@ -70,15 +77,17 @@ http://127.0.0.1:8000
 
 The Python backend follows a layered, hexagonal structure:
 
-```
 core/
     domain/            # Business models
     application/       # Use cases and validations
     adapters/
         api/           # HTTP interface (Django views)
-```
 
-Business logic remains independent of the framework.
+Flow:
+
+Controller → Service → Repository → MongoEngine → MongoDB
+
+Business logic remains independent of the framework and database layer.
 
 ---
 
@@ -97,4 +106,11 @@ Business logic remains independent of the framework.
 - Input validation
 - Pagination support
 
-Future weeks will extend the system with persistence and frontend integration.
+### Week 3
+- MongoDB integration using MongoEngine
+- Persistent Product storage
+- Removal of in-memory repository
+- Environment-based configuration (.env)
+- Audit fields (created_at, updated_at)
+
+Future weeks will extend the system with advanced features and frontend integration.

@@ -2,14 +2,13 @@ import uuid
 from typing import Dict
 
 from core.domain.product import Product
-from core.application.repositories.in_memory_product_repository import (
-    InMemoryProductRepository,
+from core.application.repositories.mongo_product_repository import (
+    MongoProductRepository,
 )
-
 
 class ProductService:
     def __init__(self):
-        self.repository = InMemoryProductRepository()
+        self.repository = MongoProductRepository()
 
     def create_product(self, data: Dict) -> Product:
         self._validate(data)

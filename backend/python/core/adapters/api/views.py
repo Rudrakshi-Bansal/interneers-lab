@@ -40,8 +40,9 @@ def product_to_dict(product):
         "price": product.price,
         "brand": product.brand,
         "quantity": product.quantity,
+        "created_at": product.created_at,
+        "updated_at": product.updated_at,
     }
-
 
 # ==============================
 # Collection Endpoints
