@@ -6,6 +6,8 @@ from mongoengine import (
     DateTimeField,
 )
 from datetime import datetime
+from mongoengine import ReferenceField
+from core.infrastructure.models.product_category_document import ProductCategoryDocument
 
 
 class ProductDocument(Document):
@@ -14,7 +16,7 @@ class ProductDocument(Document):
     id = StringField(primary_key=True)
     name = StringField(required=True)
     description = StringField()
-    category = StringField()
+    category = ReferenceField(ProductCategoryDocument, required=False)
     price = FloatField(required=True, min_value=0)
     brand = StringField(required=True)
     quantity = IntField(required=True, min_value=0)

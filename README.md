@@ -11,7 +11,8 @@ This repository serves as the working codebase for incremental weekly assignment
 - Backend (Python) – Django  
 - Backend (Go) – Golang  
 - Frontend – React + TypeScript  
-- Database – MongoDB (Docker)
+- Database – MongoDB (Docker)  
+- ORM / ODM – MongoEngine
 
 ---
 
@@ -99,6 +100,7 @@ core/
     application/       # Use cases and validations
     adapters/
         api/           # HTTP interface (Django views)
+    infrastructure/    # Database models and persistence
 ```
 
 **Flow:**
@@ -130,5 +132,13 @@ Business logic remains independent of the framework and database layer.
 - Removal of in-memory repository
 - Environment-based configuration (.env)
 - Audit fields (created_at, updated_at)
+
+### Week 4
+- Added ProductCategory model and ProductCategoryService
+- Implemented product–category relationships
+- Added category CRUD APIs and product-by-category APIs
+- Added APIs to add/remove products from categories
+- Implemented bulk product creation via CSV
+- Added migration for existing products without categories
 
 Future weeks will extend the system with advanced features and frontend integration.

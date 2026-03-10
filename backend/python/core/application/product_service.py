@@ -5,41 +5,72 @@ from core.domain.product import Product
 from core.application.repositories.mongo_product_repository import (
     MongoProductRepository,
 )
+from core.application.repositories.mongo_category_repository import (
+    MongoCategoryRepository,
+)
+
 
 class ProductService:
     def __init__(self):
         self.repository = MongoProductRepository()
+        self.category_repository = MongoCategoryRepository()
 
     def create_product(self, data: Dict) -> Product:
+        if not data.get("category_id"):
+            raise ValueError("category_id is required")
+
         self._validate(data)
+        category_id = data.get("category_id")
+        if not self.category_repository.get_by_id(category_id):
+            raise ValueError("Category not found")
 
         product = Product(
             id=str(uuid.uuid4()),
             name=data["name"],
             description=data.get("description", ""),
-            category=data.get("category", ""),
+            category="",
+            category_id=category_id,
             price=data["price"],
             brand=data["brand"],
             quantity=data["quantity"],
         )
-
         return self.repository.create(product)
 
     def get_product(self, product_id: str):
         return self.repository.get_by_id(product_id)
 
-    def list_products(self):
+    def list_products(self, category_id: str | None = None):
+        if category_id:
+            return self.repository.get_by_category(category_id)
         return self.repository.get_all()
+
+    def add_product_to_category(self, product_id: str, category_id: str):
+        return self.update_product(product_id, {"category_id": category_id})
+
+    def remove_product_from_category(self, product_id: str, category_id: str):
+        product = self.repository.get_by_id(product_id)
+        if not product:
+            return None
+        if product.category_id != category_id:
+            raise ValueError("Product is not in this category")
+        return self.update_product(product_id, {"category_id": None})
 
     def update_product(self, product_id: str, data: Dict):
         existing = self.repository.get_by_id(product_id)
         if not existing:
             return None
 
+        category_id = data.get("category_id", existing.category_id)
+        if category_id == "":
+            category_id = None
+        if category_id and not self.category_repository.get_by_id(category_id):
+            raise ValueError("Category not found")
+
         updated_data = {
             "name": data.get("name", existing.name),
             "description": data.get("description", existing.description),
-            "category": data.get("category", existing.category),
+            "category": existing.category,
+            "category_id": category_id,
             "price": data.get("price", existing.price),
             "brand": data.get("brand", existing.brand),
             "quantity": data.get("quantity", existing.quantity),
