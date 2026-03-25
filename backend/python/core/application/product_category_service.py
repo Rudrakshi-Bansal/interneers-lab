@@ -6,8 +6,19 @@ from core.application.repositories.mongo_category_repository import (
 )
 
 
+def _collapse_title_whitespace(title: str) -> str:
+    """Strip edges and collapse internal runs of whitespace to single spaces."""
+    return " ".join(title.strip().split())
+
+
+def _apply_title_casing(title: str) -> str:
+    """Normalize word casing for display (e.g. mixed capitals → Title Case)."""
+    return title.title()
+
+
 def _normalize_title(title: str) -> str:
-    return " ".join(title.strip().split()).title()
+    collapsed = _collapse_title_whitespace(title)
+    return _apply_title_casing(collapsed)
 
 
 class ProductCategoryService:
@@ -49,10 +60,13 @@ class ProductCategoryService:
         if not existing:
             return None
 
-        title = _normalize_title(data.get("title", existing.title))
+        raw_title = data.get("title", existing.title)
         description = data.get("description", existing.description)
 
-        self._validate({"title": title, "description": description})
+        # validate BEFORE normalization
+        self._validate({"title": raw_title, "description": description})
+
+        title = _normalize_title(raw_title)
 
         try:
             other = self.repository.get_by_title(title)
