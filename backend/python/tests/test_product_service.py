@@ -1,4 +1,3 @@
-import unittest
 from unittest.mock import Mock
 import pytest
 
@@ -9,7 +8,7 @@ from core.application.repositories.mongo_category_repository import MongoCategor
 
 
 # =========================================================
-# FIXTURE (pytest)
+# FIXTURE
 # =========================================================
 
 @pytest.fixture
@@ -25,7 +24,7 @@ def service_fixture():
 
 
 # =========================================================
-# PARAMETRIZED VALIDATION TESTS
+# VALIDATION 
 # =========================================================
 
 @pytest.mark.parametrize("field", ["name", "brand", "price", "quantity"])
@@ -107,29 +106,43 @@ def test_validate_negative_quantity(service_fixture):
 
 
 # =========================================================
-# UNITTEST CLASS (SERVICE LOGIC)
+# CREATE
 # =========================================================
 
-class TestProductService(unittest.TestCase):
+def test_create_product_success(service_fixture):
+    service_fixture.category_repository.get_by_id.return_value = True
+    service_fixture.repository.create.side_effect = lambda p: p
 
-    def setUp(self):
-        self.repo = Mock(spec=MongoProductRepository)
-        self.category_repo = Mock(spec=MongoCategoryRepository)
+    result = service_fixture.create_product({
+        "name": "Phone",
+        "brand": "Apple",
+        "price": 100,
+        "quantity": 5,
+        "category_id": "cat-1"
+    })
 
-        self.service = ProductService()
-        self.service.repository = self.repo
-        self.service.category_repository = self.category_repo
+    assert result.name == "Phone"
+    service_fixture.repository.create.assert_called_once()
 
 
-    # ----------------------------
-    # CREATE
-    # ----------------------------
+def test_create_product_missing_category_id(service_fixture):
+    with pytest.raises(ValueError):
+        service_fixture.create_product({
+            "name": "Phone",
+            "brand": "Apple",
+            "price": 100,
+            "quantity": 5,
+        })
 
-    def test_create_product_success(self):
-        self.category_repo.get_by_id.return_value = True
-        self.repo.create.side_effect = lambda p: p
+    service_fixture.repository.create.assert_not_called()
+    service_fixture.category_repository.get_by_id.assert_not_called()
 
-        result = self.service.create_product({
+
+def test_create_product_category_not_found(service_fixture):
+    service_fixture.category_repository.get_by_id.return_value = None
+
+    with pytest.raises(ValueError):
+        service_fixture.create_product({
             "name": "Phone",
             "brand": "Apple",
             "price": 100,
@@ -137,188 +150,170 @@ class TestProductService(unittest.TestCase):
             "category_id": "cat-1"
         })
 
-        self.assertEqual(result.name, "Phone")
-        self.repo.create.assert_called_once()
+    service_fixture.repository.create.assert_not_called()
 
 
-    def test_create_product_missing_category_id(self):
-        with self.assertRaisesRegex(ValueError, "category_id is required"):
-            self.service.create_product({
-                "name": "Phone",
-                "brand": "Apple",
-                "price": 100,
-                "quantity": 5,
-            })
+def test_create_product_default_description(service_fixture):
+    service_fixture.category_repository.get_by_id.return_value = True
+    service_fixture.repository.create.side_effect = lambda p: p
 
+    result = service_fixture.create_product({
+        "name": "Phone",
+        "brand": "Apple",
+        "price": 100,
+        "quantity": 5,
+        "category_id": "cat-1"
+    })
 
-    def test_create_product_category_not_found(self):
-        self.category_repo.get_by_id.return_value = None
+    assert result.description == ""
 
-        with self.assertRaises(ValueError):
-            self.service.create_product({
-                "name": "Phone",
-                "brand": "Apple",
-                "price": 100,
-                "quantity": 5,
-                "category_id": "cat-1"
-            })
 
+# =========================================================
+# GET / LIST
+# =========================================================
 
-    def test_create_product_default_description(self):
-        self.category_repo.get_by_id.return_value = True
-        self.repo.create.side_effect = lambda p: p
+def test_get_product(service_fixture):
+    service_fixture.repository.get_by_id.return_value = "obj"
 
-        result = self.service.create_product({
-            "name": "Phone",
-            "brand": "Apple",
-            "price": 100,
-            "quantity": 5,
-            "category_id": "cat-1"
-        })
+    result = service_fixture.get_product("1")
 
-        self.assertEqual(result.description, "")
+    assert result == "obj"
 
 
-    # ----------------------------
-    # GET / LIST
-    # ----------------------------
+def test_list_products_all(service_fixture):
+    service_fixture.repository.get_all.return_value = ["a"]
 
-    def test_get_product(self):
-        self.repo.get_by_id.return_value = "obj"
+    result = service_fixture.list_products()
 
-        result = self.service.get_product("1")
+    assert result == ["a"]
 
-        self.assertEqual(result, "obj")
 
+def test_list_products_by_category(service_fixture):
+    service_fixture.repository.get_by_category.return_value = ["filtered"]
 
-    def test_list_products_all(self):
-        self.repo.get_all.return_value = ["a"]
+    result = service_fixture.list_products("cat-1")
 
-        result = self.service.list_products()
+    assert result == ["filtered"]
 
-        self.assertEqual(result, ["a"])
 
+# =========================================================
+# UPDATE
+# =========================================================
 
-    def test_list_products_by_category(self):
-        self.repo.get_by_category.return_value = ["filtered"]
+def test_update_product_success(service_fixture):
+    existing = Product(
+        id="1", name="Old", description="Old",
+        category="", category_id="cat-1",
+        price=100, brand="Apple", quantity=5
+    )
 
-        result = self.service.list_products("cat-1")
+    service_fixture.repository.get_by_id.return_value = existing
+    service_fixture.category_repository.get_by_id.return_value = True
+    service_fixture.repository.update.side_effect = lambda _id, p: p
 
-        self.assertEqual(result, ["filtered"])
+    result = service_fixture.update_product("1", {"name": "New"})
 
+    assert result.name == "New"
 
-    # ----------------------------
-    # UPDATE
-    # ----------------------------
 
-    def test_update_product_success(self):
-        existing = Product(
-            id="1", name="Old", description="Old",
-            category="", category_id="cat-1",
-            price=100, brand="Apple", quantity=5
-        )
+def test_update_product_not_found(service_fixture):
+    service_fixture.repository.get_by_id.return_value = None
 
-        self.repo.get_by_id.return_value = existing
-        self.category_repo.get_by_id.return_value = True
-        self.repo.update.side_effect = lambda _id, p: p
+    result = service_fixture.update_product("1", {})
 
-        result = self.service.update_product("1", {"name": "New"})
+    assert result is None
 
-        self.assertEqual(result.name, "New")
 
+def test_update_product_invalid_category(service_fixture):
+    existing = Product(
+        id="1", name="Old", description="Old",
+        category="", category_id="cat-1",
+        price=100, brand="Apple", quantity=5
+    )
 
-    def test_update_product_not_found(self):
-        self.repo.get_by_id.return_value = None
+    service_fixture.repository.get_by_id.return_value = existing
+    service_fixture.category_repository.get_by_id.return_value = None
 
-        result = self.service.update_product("1", {})
+    with pytest.raises(ValueError):
+        service_fixture.update_product("1", {"category_id": "invalid"})
 
-        self.assertIsNone(result)
+    service_fixture.repository.update.assert_not_called()
 
 
-    def test_update_product_invalid_category(self):
-        existing = Product(
-            id="1", name="Old", description="Old",
-            category="", category_id="cat-1",
-            price=100, brand="Apple", quantity=5
-        )
+def test_update_product_blank_category_becomes_none(service_fixture):
+    existing = Product(
+        id="1", name="Old", description="Old",
+        category="", category_id="cat-1",
+        price=100, brand="Apple", quantity=5
+    )
 
-        self.repo.get_by_id.return_value = existing
-        self.category_repo.get_by_id.return_value = None
+    service_fixture.repository.get_by_id.return_value = existing
+    service_fixture.repository.update.side_effect = lambda _id, p: p
 
-        with self.assertRaises(ValueError):
-            self.service.update_product("1", {"category_id": "invalid"})
+    result = service_fixture.update_product("1", {"category_id": ""})
 
+    assert result.category_id is None
 
-    def test_update_product_blank_category_becomes_none(self):
-        existing = Product(
-            id="1", name="Old", description="Old",
-            category="", category_id="cat-1",
-            price=100, brand="Apple", quantity=5
-        )
 
-        self.repo.get_by_id.return_value = existing
-        self.repo.update.side_effect = lambda _id, p: p
+# =========================================================
+# CATEGORY OPERATIONS
+# =========================================================
 
-        result = self.service.update_product("1", {"category_id": ""})
+def test_add_product_to_category(service_fixture):
+    service_fixture.update_product = Mock(return_value="updated")
 
-        self.assertIsNone(result.category_id)
+    result = service_fixture.add_product_to_category("1", "cat-1")
 
+    assert result == "updated"
 
-    # ----------------------------
-    # CATEGORY OPERATIONS
-    # ----------------------------
 
-    def test_add_product_to_category(self):
-        self.service.update_product = Mock(return_value="updated")
+def test_remove_product_from_category_success(service_fixture):
+    product = Product(
+        id="1", name="Phone", description="",
+        category="", category_id="cat-1",
+        price=100, brand="Apple", quantity=5
+    )
 
-        result = self.service.add_product_to_category("1", "cat-1")
+    service_fixture.repository.get_by_id.return_value = product
+    service_fixture.update_product = Mock(return_value="updated")
 
-        self.assertEqual(result, "updated")
+    result = service_fixture.remove_product_from_category("1", "cat-1")
 
+    assert result == "updated"
 
-    def test_remove_product_from_category_success(self):
-        product = Product(
-            id="1", name="Phone", description="",
-            category="", category_id="cat-1",
-            price=100, brand="Apple", quantity=5
-        )
 
-        self.repo.get_by_id.return_value = product
-        self.service.update_product = Mock(return_value="updated")
+def test_remove_product_wrong_category(service_fixture):
+    product = Product(
+        id="1", name="Phone", description="",
+        category="", category_id="cat-1",
+        price=100, brand="Apple", quantity=5
+    )
 
-        result = self.service.remove_product_from_category("1", "cat-1")
+    service_fixture.repository.get_by_id.return_value = product
 
-        self.assertEqual(result, "updated")
+    service_fixture.update_product = Mock()
 
+    with pytest.raises(ValueError):
+        service_fixture.remove_product_from_category("1", "cat-2")
 
-    def test_remove_product_wrong_category(self):
-        product = Product(
-            id="1", name="Phone", description="",
-            category="", category_id="cat-1",
-            price=100, brand="Apple", quantity=5
-        )
+    service_fixture.update_product.assert_not_called()
 
-        self.repo.get_by_id.return_value = product
 
-        with self.assertRaises(ValueError):
-            self.service.remove_product_from_category("1", "cat-2")
+def test_remove_product_not_found(service_fixture):
+    service_fixture.repository.get_by_id.return_value = None
 
+    result = service_fixture.remove_product_from_category("1", "cat-1")
 
-    def test_remove_product_not_found(self):
-        self.repo.get_by_id.return_value = None
+    assert result is None
 
-        result = self.service.remove_product_from_category("1", "cat-1")
 
-        self.assertIsNone(result)
+# =========================================================
+# DELETE
+# =========================================================
 
+def test_delete_product(service_fixture):
+    service_fixture.repository.delete.return_value = True
 
-    # ----------------------------
-    # DELETE
-    # ----------------------------
+    result = service_fixture.delete_product("1")
 
-    def test_delete_product(self):
-        self.repo.delete.return_value = True
-
-        result = self.service.delete_product("1")
-
-        self.assertTrue(result)
+    assert result is True
