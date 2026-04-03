@@ -141,4 +141,11 @@ Business logic remains independent of the framework and database layer.
 - Implemented bulk product creation via CSV
 - Added migration for existing products without categories
 
+### Week 5
+- Added unit tests for ProductService and ProductCategoryService with mocked repository layers
+- Added parameterized unit tests for validation and normalization scenarios
+- Added seed scripts and pytest setup fixtures for integration testing
+- Added end-to-end integration tests covering categories, products, relations, and bulk CSV APIs
+- Configured local testing MongoDB flow using dedicated test DB environment switching
+
 Future weeks will extend the system with advanced features and frontend integration.

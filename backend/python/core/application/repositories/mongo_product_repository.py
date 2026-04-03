@@ -1,3 +1,4 @@
+import uuid
 from typing import List, Optional
 
 from core.domain.product import Product
@@ -7,6 +8,7 @@ from core.infrastructure.models.product_category_document import ProductCategory
 
 class MongoProductRepository:
     def create(self, product: Product) -> Product:
+        product_id = product.id or str(uuid.uuid4())
         category_ref = None
         if product.category_id:
             category_ref = ProductCategoryDocument.objects(
@@ -14,7 +16,7 @@ class MongoProductRepository:
             ).first()
 
         doc = ProductDocument(
-            id=product.id,
+            id=product_id,
             name=product.name,
             description=product.description,
             category=category_ref,

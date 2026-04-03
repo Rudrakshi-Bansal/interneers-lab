@@ -41,14 +41,13 @@ def product_to_dict(product):
         "name": product.name,
         "description": product.description,
         "category": product.category,
+        "category_id": product.category_id,
         "price": product.price,
         "brand": product.brand,
         "quantity": product.quantity,
         "created_at": product.created_at,
         "updated_at": product.updated_at,
     }
-    if product.category_id is not None:
-        result["category_id"] = product.category_id
     return result
 
 
@@ -231,7 +230,7 @@ def product_category_detail(request, product_id, category_id):
             updated = service.remove_product_from_category(product_id, category_id)
             if not updated:
                 return error_response("Product not found", 404)
-            return success_response({"message": "Product removed from category"})
+            return success_response(product_to_dict(updated))
         except ValueError as exc:
             return error_response(str(exc), 400)
     return error_response("Method not allowed", 405)
